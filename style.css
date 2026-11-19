@@ -232,6 +232,30 @@ a.btn { text-decoration: none; }
 .howto { margin: 12px 0; padding-left: 22px; font: 500 15px/1.6 var(--font); color: var(--ink-2); }
 .howto li { margin-bottom: 6px; } .howto b { color: var(--ink); }
 
+/* ---------- music ---------- */
+.music-fab { position: fixed; z-index: 55; top: 14px; right: 14px; margin: 0; }
+.music-btn.playing .pxi { animation: note-bob .7s steps(2) infinite; }
+@keyframes note-bob { 50% { transform: translateY(-3px) rotate(-8deg); } }
+#yt-holder { position: fixed; left: -9999px; top: 0; width: 320px; height: 180px; pointer-events: none; opacity: 0; }
+.music-card { width: min(580px, 100%); }
+.now { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; margin-top: 10px; background: #fff; border: 3px solid var(--ink); }
+.now-info { min-width: 0; display: flex; flex-direction: column; }
+.now-info small { font: 700 10px var(--pxfont); letter-spacing: .14em; text-transform: uppercase; color: var(--peach-d); }
+.now-info b { font: 700 20px/1.2 var(--pxfont); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now-info span { font: 500 12px var(--font); color: var(--ink-2); }
+.vol-row { display: flex; align-items: center; gap: 12px; margin: 12px 0; color: var(--ink-2); }
+.vol-row input[type=range] { flex: 1; width: auto; }
+#music-tabs { margin-bottom: 12px; }
+.tracks { display: grid; gap: 8px; }
+.track { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; padding: 10px 12px; background: #fff; border: 3px solid var(--ink); cursor: pointer; font-family: var(--pxfont); color: var(--ink); }
+.track:hover { background: #fff8ef; }
+.track.sel { background: #ffd36e; }
+.track b { display: block; font-size: 17px; }
+.track small { font: 500 12px var(--font); color: var(--ink-2); }
+.track .chip { white-space: nowrap; }
+.mtab .hint { margin: 10px 0 8px; font: 500 13px/1.45 var(--font); color: var(--ink-2); }
+.mtab .btn.block { margin-top: 0; }
+
 /* ---------- save / load panel ---------- */
 .save-card { width: min(660px, 100%); }
 .save-title { display: flex; align-items: center; gap: 10px; --is: 30px; }

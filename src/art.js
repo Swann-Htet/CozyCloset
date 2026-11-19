@@ -650,6 +650,7 @@
     },
     'chev-up'(R) { for (let i = 0; i < 5; i++) { R(1 + i, 7 - i, 2, 2, '#ffd36e'); R(9 - i, 7 - i, 2, 2, '#ffd36e'); } },
     'chev-down'(R) { for (let i = 0; i < 5; i++) { R(1 + i, 2 + i, 2, 2, '#ffd36e'); R(9 - i, 2 + i, 2, 2, '#ffd36e'); } },
+    music(R) { R(4, 1, 7, 2, '#ffd36e'); R(4, 1, 1, 8, '#ffd36e'); R(10, 1, 1, 7, '#ffd36e'); R(1, 8, 4, 3, '#ffd36e'); R(7, 7, 4, 3, '#ffd36e'); R(2, 8, 1, 1, '#fff3a8'); R(8, 7, 1, 1, '#fff3a8'); },
     'arrow-left'(R) { for (let i = 0; i < 5; i++) R(2 + i, 5 - i, 1, 2 + 2 * i, '#ffd36e'); R(7, 1, 3, 10, '#ffd36e'); },
     'arrow-right'(R) { for (let i = 0; i < 5; i++) R(9 - i, 5 - i, 1, 2 + 2 * i, '#ffd36e'); R(2, 1, 3, 10, '#ffd36e'); },
     plus(R) { R(4, 1, 4, 10, '#5fcf9f'); R(1, 4, 10, 4, '#5fcf9f'); R(5, 2, 1, 8, '#9bf0c8'); R(2, 5, 8, 1, '#9bf0c8'); },

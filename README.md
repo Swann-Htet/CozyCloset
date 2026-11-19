@@ -17,6 +17,18 @@ Put your logo at `assets/logo.png` and the menu shows it automatically. Logo pro
 
 ---
 
+## Music
+
+Background music starts after your first click (browsers block sound until then). Open the music button to choose:
+
+- **Cozy tracks**: three lo-fi tracks generated live in the browser (Cozy Morning, Sunny Street, Quiet Night Shop).
+- **My music**: load your own mp3 / ogg / wav file. It is stored in this browser and loops.
+- **YouTube**: paste a video or playlist link. It needs an internet connection, and some videos block playing outside YouTube.
+
+The speaker button in the game mutes music and sound effects together.
+
+---
+
 ## Table of Contents
 
 1. [Overview](#overview)
@@ -553,7 +565,7 @@ Contributions and ideas are welcome once the base project exists.
 
 ## Developer
 
-Made by **Swann Htet** - [swannhtet.com](https://swannhtet.com) - [GitHub: Swann-Htet/CozyCloset](https://github.com/Swann-Htet/CozyCloset)
+Made by **Swan Htet** - [swannhtet.com](https://swannhtet.com)
 
 ---
 

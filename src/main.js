@@ -239,6 +239,7 @@
   let looping = false;
   function startGame() {
     $('#mainmenu').hidden = true; $('#setup').hidden = true; $('#app').hidden = false;
+    $('#music-fab').hidden = true;
     window.MenuScene.stop();
     customers = []; queue = []; bubbles.splice(0).forEach((b) => b.el.remove()); isOpen = false; dayT = 0;
     applyState();
@@ -248,7 +249,7 @@
     if (!looping) { looping = true; requestAnimationFrame(loop); }
   }
 
-  function syncMute() { setIcon($('#mute .pxi'), S.muted ? 'speaker-off' : 'speaker'); }
+  function syncMute() { setIcon($('#mute .pxi'), S.muted ? 'speaker-off' : 'speaker'); window.Music.setMuted(S.muted); }
 
   function buildStations() {
     $('#stations').innerHTML = STATIONS.map((s) => `<button class="px st-label" data-st="${s.id}" title="${s.label}"><span class="pxi" data-icon="${s.icon}"></span><span>${s.label}</span></button>`).join('');
@@ -300,7 +301,7 @@
       sfx('click'); showView(STATIONS.find((s) => s.id === b.dataset.st).view);
     };
     $$('.nav-btn').forEach((b) => (b.onclick = () => { sfx('click'); showView(b.dataset.view); }));
-    $('#mute').onclick = () => { S.muted = !S.muted; syncMute(); save(); sfx('click'); };
+    $('#mute').onclick = () => { S.muted = !S.muted; syncMute(); window.Music.setMuted(S.muted); save(); sfx('click'); };
     $('#vol').oninput = (e) => { S.vol = e.target.value / 100; save(); };
     $('#vol').onchange = () => sfx('click');
     $('#reset').onclick = async () => {
@@ -1625,6 +1626,7 @@
     $('#app').hidden = true; $('#setup').hidden = true; $('#mainmenu').hidden = false;
     $('#savemenu').hidden = true;
     window.MenuScene.start($('#menu-scene'));
+    $('#music-fab').hidden = false;
   }
 
   function initMenu() {
@@ -1653,9 +1655,50 @@
     });
   }
 
+  /* ---------- music panel ---------- */
+  let musicTab = 'builtin';
+  function renderMusic() {
+    const M = window.Music, i = M.info();
+    $('#music-now').textContent = i.label; $('#music-sub').textContent = i.sub;
+    const t = $('#music-toggle');
+    t.innerHTML = i.playing ? '<i data-lucide="pause"></i> Pause' : '<i data-lucide="play"></i> Play';
+    $('#music-vol').value = Math.round(i.vol * 100);
+    $$('#music-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === musicTab));
+    $$('#music .mtab').forEach((el) => { el.hidden = el.dataset.tab !== musicTab; });
+    $('#music-tracks').innerHTML = Object.entries(M.TRACKS).map(([id, tr]) => `
+      <button class="track ${i.source === 'builtin' && i.track === id ? 'sel' : ''}" data-id="${id}">
+        <span><b>${tr.name}</b><small>${tr.mood}</small></span><span class="chip">${tr.bpm} bpm</span>
+      </button>`).join('');
+    $('#music-file-text').textContent = i.fileName || 'Choose a music file (mp3, ogg, wav)';
+    $('#music-file-remove').hidden = !i.fileName;
+    if (i.yt && !$('#yt-url').value) $('#yt-url').value = i.yt.url || '';
+    $$('.music-btn').forEach((b) => b.classList.toggle('playing', i.playing && !i.muted));
+    icons();
+  }
+
+  function initMusic() {
+    const M = window.Music;
+    M.onMessage = (text, err) => toast(text, err);
+    M.onChange = () => { if (!$('#music').hidden) renderMusic(); else $$('.music-btn').forEach((b) => b.classList.toggle('playing', M.info().playing && !M.info().muted)); };
+    const open = () => { musicTab = M.info().source; renderMusic(); $('#music').hidden = false; sfx('click'); };
+    $('#music-btn').onclick = open; $('#music-fab').onclick = open;
+    $('#music-close').onclick = () => { $('#music').hidden = true; };
+    $('#music').addEventListener('click', (e) => { if (e.target.id === 'music') $('#music').hidden = true; });
+    $('#music-toggle').onclick = () => M.toggle();
+    $('#music-vol').oninput = (e) => M.setVolume(e.target.value / 100);
+    $('#music-tabs').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; musicTab = b.dataset.tab; renderMusic(); };
+    $('#music-tracks').onclick = (e) => { const b = e.target.closest('.track'); if (b) M.selectTrack(b.dataset.id); };
+    $('#music-file').onchange = (e) => { M.setFile(e.target.files[0]); e.target.value = ''; };
+    $('#music-file-remove').onclick = () => M.clearFile();
+    $('#yt-play').onclick = () => M.setYouTube($('#yt-url').value);
+    $('#yt-url').addEventListener('keydown', (e) => { if (e.key === 'Enter') M.setYouTube($('#yt-url').value); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#music').hidden = true; });
+    M.init();
+  }
+
   /* ---------- boot ---------- */
   function boot() {
-    initSetup(); initApp(); initPan(); initShopClicks(); initPicker(); initDeco(); initUpload(); initBrand(); initSetupLogo(); initSave(); initMenu(); initConfirm(); initEditor(); initInv();
+    initSetup(); initApp(); initPan(); initShopClicks(); initPicker(); initDeco(); initUpload(); initBrand(); initSetupLogo(); initSave(); initMenu(); initConfirm(); initMusic(); initEditor(); initInv();
     icons(); mount();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => A.clearCache());
     showMenu();
