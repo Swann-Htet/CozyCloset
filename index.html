@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cozy Closet</title>
+  <meta name="description" content="Cozy Closet: a cozy pixel art clothing shop game. Draw it. Hang it. Love it.">
+  <meta name="theme-color" content="#ffc9b3">
+  <link rel="icon" href="favicon.ico?v=2" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png?v=2">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png?v=2">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=21">
+</head>
+<body>
+
+<!-- ============ MAIN MENU ============ -->
+<canvas id="menu-scene" class="menu-scene" hidden></canvas>
+<div id="mainmenu" class="setup menu" hidden>
+  <div class="menu-wrap">
+    <div class="menu-logo">
+      <div class="logo-stage" id="logo-stage" hidden>
+        <img id="menu-logo-img" alt="Cozy Closet">
+        <div class="logo-shine" aria-hidden="true"></div>
+      </div>
+      <h1 id="menu-logo-text">Cozy Closet</h1>
+    </div>
+    <div class="menu-card">
+      <div class="menu-buttons">
+        <button class="btn primary lg" id="m-continue" hidden><span><i data-lucide="play"></i> Continue</span><small id="m-continue-info"></small></button>
+        <button class="btn lg" id="m-new"><i data-lucide="sparkles"></i> New game</button>
+        <button class="btn lg" id="m-load"><i data-lucide="folder-open"></i> Load game</button>
+        <button class="btn lg wide" id="m-how"><i data-lucide="help-circle"></i> How to play</button>
+      </div>
+      <p class="menu-foot">Your shop saves automatically in this browser.</p>
+      <div class="menu-dev">
+        <span class="dev-label">Developer</span>
+        <b class="dev-name">Swann Htet</b>
+        <div class="dev-links">
+          <a class="btn sm" href="https://swannhtet.com" target="_blank" rel="noopener noreferrer"><i data-lucide="globe"></i> swannhtet.com</a>
+          <a class="btn sm" href="https://github.com/Swann-Htet/CozyCloset" target="_blank" rel="noopener noreferrer"><i data-lucide="github"></i> GitHub</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETUP / TITLE ============ -->
+<div id="setup" class="setup">
+  <div class="blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="setup-card">
+    <div class="crowd" id="crowd" aria-hidden="true"></div>
+    <button class="btn ghost sm" id="setup-back-menu"><i data-lucide="arrow-left"></i> Main menu</button>
+    <p class="eyebrow">Cozy Closet</p>
+    <h1>Open your shop</h1>
+    <p class="lead">Pick a name for your brand, add a logo if you like, and choose where to open.</p>
+
+    <div class="step" data-step="1">
+      <label class="label" for="shop-name">Name your brand</label>
+      <div class="field">
+        <i data-lucide="pen-line"></i>
+        <input id="shop-name" type="text" maxlength="16" placeholder="Thread &amp; Pixel" autocomplete="off">
+      </div>
+      <span class="label">Logo <small class="opt">(optional photo for your sign)</small></span>
+      <div class="logo-row">
+        <label class="drop slim" for="setup-logo"><span class="pxi" data-icon="image"></span><span id="setup-logo-text">Add a photo logo</span></label>
+        <canvas id="setup-logo-prev" class="logo-prev" hidden></canvas>
+        <input id="setup-logo" type="file" accept="image/*" hidden>
+      </div>
+      <button class="btn primary lg" id="to-step2">Continue <i data-lucide="arrow-right"></i></button>
+    </div>
+
+    <div class="step" data-step="2" hidden>
+      <span class="label">Choose your location</span>
+      <div id="locations" class="locations"></div>
+      <div class="row">
+        <button class="btn ghost" id="back-step1"><i data-lucide="arrow-left"></i> Back</button>
+        <button class="btn primary lg" id="start-game">Open for business <i data-lucide="door-open"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="app" hidden>
+  <canvas id="world"></canvas>
+  <div id="bubbles" class="bubbles"></div>
+  <div id="stations" class="stations"></div>
+
+  <!-- pixel HUD -->
+  <header class="hud">
+    <div class="px plaque" id="plaque" role="button" tabindex="0" title="Edit shop name and logo">
+      <small id="loc-label">Street Corner</small>
+      <b id="shop-title">Shop</b>
+    </div>
+    <div class="px stats">
+      <div class="stat" title="Money"><span class="pxi" data-icon="coin"></span><div><small>Money</small><b id="st-money">0</b></div></div>
+      <div class="stat" title="Day"><span class="pxi" data-icon="calendar"></span><div><small>Day</small><b id="st-day">1</b></div></div>
+      <div class="stat" title="Items sold"><span class="pxi" data-icon="bag"></span><div><small>Sold</small><b id="st-sold">0</b></div></div>
+      <div class="stat" title="Shop charm (more decorations = more customers)"><span class="pxi" data-icon="star"></span><div><small>Charm</small><b id="st-charm">0</b></div></div>
+    </div>
+    <div class="px tools">
+      <button class="pxb ico" id="save-btn" title="Save game (Ctrl+S)"><span class="pxi" data-icon="save"></span></button>
+      <button class="pxb ico" id="mute" title="Sound"><span class="pxi" data-icon="speaker"></span></button>
+      <input id="vol" type="range" min="0" max="100" value="70" aria-label="Volume">
+      <button class="pxb ico" id="reset" title="Reset save"><span class="pxi" data-icon="refresh"></span></button>
+    </div>
+  </header>
+  <button class="pxb ico" id="nav-toggle" title="Hide the top bar"><span class="pxi" data-icon="chev-up"></span></button>
+  <button class="pxb ico" id="ui-toggle" title="Full screen (F)"><span class="pxi" data-icon="fullscreen"></span></button>
+
+  <!-- flexible dock: wraps and re-orders to fit any screen -->
+  <footer class="dock" id="dock">
+    <div class="px dock-ctx" id="ctx-shop">
+      <button class="pxb go" id="toggle-open"><span class="pxi" data-icon="door-open"></span><span>Open shop</span></button>
+      <button class="pxb" id="expand" title="Make the shop bigger"><span class="pxi" data-icon="expand"></span><span id="expand-text">Expand</span></button>
+      <div class="today">
+        <div><small>Visitors</small><b id="t-cust">0</b></div>
+        <div><small>Sales</small><b id="t-sales">0</b></div>
+        <div><small>Revenue</small><b id="t-rev">$0</b></div>
+      </div>
+    </div>
+    <div class="px dock-ctx" id="ctx-deco" hidden>
+      <button class="pxb ico sm" id="deco-prev" title="Scroll left"><span class="pxi" data-icon="arrow-left"></span></button>
+      <div id="deco-palette" class="deco-palette"></div>
+      <button class="pxb ico sm" id="deco-next" title="Scroll right"><span class="pxi" data-icon="arrow-right"></span></button>
+    </div>
+    <nav class="px dock-nav" aria-label="Main">
+      <button class="nav-btn active" data-view="shop"><span class="pxi" data-icon="store"></span><span>Shop</span></button>
+      <button class="nav-btn" data-view="design"><span class="pxi" data-icon="palette"></span><span>Design</span></button>
+      <button class="nav-btn" data-view="decorate"><span class="pxi" data-icon="sofa"></span><span>Decorate</span></button>
+      <button class="nav-btn" data-view="inventory"><span class="pxi" data-icon="box"></span><span>Stock</span></button>
+    </nav>
+  </footer>
+
+  <!-- DESIGN -->
+  <section class="page studio-page" id="view-design" hidden>
+    <div class="studio">
+      <!-- left: garment, quick art, brush -->
+      <aside class="card studio-left">
+        <h3>Design studio</h3>
+        <ol class="steps"><li>Pick a garment</li><li>Paint the fabric</li><li>Add it to stock</li></ol>
+        <span class="label">Garment</span>
+        <div id="cat-chips" class="cats"></div>
+        <span class="label">Quick art <small>(uses your ink color)</small></span>
+        <div class="presets" id="presets">
+          <button class="btn sm" data-p="stripes">Stripes</button>
+          <button class="btn sm" data-p="pin">Pinstripe</button>
+          <button class="btn sm" data-p="dots">Dots</button>
+          <button class="btn sm" data-p="checks">Checks</button>
+          <button class="btn sm" data-p="heart">Heart</button>
+          <button class="btn sm" data-p="star">Star</button>
+          <button class="btn sm" data-p="smile">Smiley</button>
+          <button class="btn sm" data-p="confetti">Confetti</button>
+        </div>
+        <span class="label">Brush size</span>
+        <div class="seg" id="brush-seg"><button data-v="1" class="on">1</button><button data-v="2">2</button><button data-v="3">3</button></div>
+        <div class="toggles">
+          <button class="tog" id="opt-mirror" aria-pressed="false" title="Mirror left and right (M)"><i data-lucide="flip-horizontal-2"></i> Mirror</button>
+          <button class="tog on" id="opt-grid" aria-pressed="true" title="Show grid (G)"><i data-lucide="grid-3x3"></i> Grid</button>
+        </div>
+        <p class="keys">Keys: <b>P</b> pencil &middot; <b>E</b> eraser &middot; <b>F</b> fill &middot; <b>I</b> pick &middot; <b>M</b> mirror &middot; <b>[ ]</b> brush &middot; <b>Ctrl+Z</b> undo</p>
+      </aside>
+
+      <!-- center: canvas -->
+      <div class="card studio-main">
+        <div id="edit-banner" class="edit-banner" hidden>
+          <span>Editing <b id="edit-name"></b></span>
+          <button class="btn sm" id="new-design">New design</button>
+        </div>
+        <div class="toolbar">
+          <button class="tool active" data-tool="pencil" title="Pencil (P)"><i data-lucide="pencil"></i></button>
+          <button class="tool" data-tool="eraser" title="Eraser (E)"><i data-lucide="eraser"></i></button>
+          <button class="tool" data-tool="fill" title="Fill (F)"><i data-lucide="paint-bucket"></i></button>
+          <button class="tool" data-tool="pick" title="Color picker (I)"><i data-lucide="pipette"></i></button>
+          <span class="sep"></span>
+          <button class="tool plain" id="undo" title="Undo (Ctrl+Z)"><i data-lucide="undo-2"></i></button>
+          <button class="tool plain" id="redo" title="Redo (Ctrl+Y)"><i data-lucide="redo-2"></i></button>
+          <button class="tool plain" id="clear" title="Clear artwork"><i data-lucide="trash-2"></i></button>
+        </div>
+        <div class="canvas-wrap"><canvas id="editor" width="480" height="480"></canvas></div>
+        <div class="save-bar">
+          <div class="field slim name"><i data-lucide="tag"></i><input id="design-name" type="text" maxlength="20" placeholder="Name your design"></div>
+          <div class="field slim price"><i data-lucide="coins"></i><input id="design-price" type="number" min="1" max="999" value="16" title="Selling price"><button class="btn sm" id="fair-price" title="Set a fair price">Fair</button></div>
+          <button class="btn primary" id="save-design"><i data-lucide="save"></i> <span id="save-label">Add to stock</span></button>
+          <button class="btn" id="update-design" hidden><i data-lucide="check"></i> Update</button>
+        </div>
+      </div>
+
+      <!-- right: preview + colors -->
+      <aside class="studio-right">
+        <div class="card">
+          <h3>Preview</h3>
+          <div class="preview"><canvas id="preview" width="24" height="24"></canvas></div>
+          <div class="info">
+            <div><small>Worth</small><b id="info-worth">$0</b></div>
+            <div><small>Cost each</small><b id="info-cost">$0</b></div>
+            <div><small>Profit</small><b id="info-profit">$0</b></div>
+          </div>
+        </div>
+        <div class="card">
+          <span class="label">Ink color</span>
+          <div id="ink-palette" class="swatches"></div>
+          <div class="recent-row"><small>Recent</small><div id="recent-colors" class="swatches mini"></div></div>
+          <label class="custom-color"><input type="color" id="ink-custom" value="#261b3d"> Custom ink</label>
+          <span class="label mt">Garment color</span>
+          <div id="base-palette" class="swatches"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- INVENTORY -->
+  <section class="page" id="view-inventory" hidden>
+    <div class="page-head">
+      <h1>Stock</h1>
+      <p>Set prices and make more of your best sellers.</p>
+    </div>
+    <div id="inv-grid" class="inv-grid"></div>
+  </section>
+</div>
+
+<!-- display design picker -->
+<div id="picker" class="picker" hidden>
+  <div class="px picker-card">
+    <div class="picker-head">
+      <b id="picker-title">Display</b>
+      <button class="pxb ico" id="picker-close" title="Close"><span class="pxi" data-icon="x"></span></button>
+    </div>
+    <p>Choose which design this display shows. Customers will look at it.</p>
+    <div id="picker-grid" class="picker-grid"></div>
+  </div>
+</div>
+
+<!-- how to play -->
+<div id="howto" class="picker" hidden>
+  <div class="px picker-card">
+    <div class="picker-head">
+      <b>How to play</b>
+      <button class="pxb ico" id="howto-close" title="Close"><span class="pxi" data-icon="x"></span></button>
+    </div>
+    <ol class="howto">
+      <li><b>Design</b> clothes in the Design studio: pick a garment, paint it, set a price.</li>
+      <li><b>Stock</b> them and make more of your best sellers.</li>
+      <li><b>Decorate</b> your shop with furniture or your own pictures. More charm brings more customers.</li>
+      <li><b>Open the shop.</b> Customers browse, react in speech bubbles, and buy what they like.</li>
+      <li><b>Grow.</b> Earn money, expand the shop, and make your brand yours.</li>
+    </ol>
+    <p>Tip: click objects inside the shop to open things, and press <b>F</b> for full screen.</p>
+  </div>
+</div>
+
+<!-- shop name + logo -->
+<div id="brand" class="picker" hidden>
+  <div class="px picker-card">
+    <div class="picker-head">
+      <b>Shop name &amp; logo</b>
+      <button class="pxb ico" id="brand-close" title="Close"><span class="pxi" data-icon="x"></span></button>
+    </div>
+    <p>Your name and a photo logo appear on the sign above the shop. Any photo works: we turn it into pixel art.</p>
+    <div class="sign-preview"><canvas id="brand-prev"></canvas></div>
+    <span class="label">Shop name</span>
+    <div class="field slim"><i data-lucide="pen-line"></i><input id="brand-name" type="text" maxlength="16" placeholder="Shop name"></div>
+    <span class="label">Logo photo</span>
+    <label class="drop" for="brand-file"><span class="pxi" data-icon="image"></span><span id="brand-drop-text">Choose a photo for your sign</span></label>
+    <input id="brand-file" type="file" accept="image/*" hidden>
+    <div id="brand-opts" hidden>
+      <div class="up-opts">
+        <span class="label">Detail</span>
+        <div class="seg" data-opt="detail"><button data-v="16">Chunky</button><button data-v="20" class="on">Normal</button><button data-v="24">Fine</button></div>
+        <span class="label">Colors</span>
+        <div class="seg" data-opt="colors"><button data-v="8">8</button><button data-v="16" class="on">16</button><button data-v="32">32</button></div>
+        <label class="check"><input type="checkbox" id="brand-bg"> Remove plain background</label>
+      </div>
+    </div>
+    <button class="btn sm danger" id="brand-remove" hidden><i data-lucide="trash-2"></i> Remove logo</button>
+    <button class="btn primary block" id="brand-save"><i data-lucide="save"></i> Save sign</button>
+  </div>
+</div>
+
+<!-- upload your own decoration: any image becomes pixel art -->
+<div id="upload" class="picker" hidden>
+  <div class="px picker-card">
+    <div class="picker-head">
+      <b>Your own decoration</b>
+      <button class="pxb ico" id="upload-close" title="Close"><span class="pxi" data-icon="x"></span></button>
+    </div>
+    <p>Upload any picture or photo. We turn it into pixel art automatically.</p>
+    <label class="drop" for="upload-file" id="drop"><span class="pxi" data-icon="image"></span><span id="drop-text">Choose an image (or drop one here)</span></label>
+    <input id="upload-file" type="file" accept="image/*" hidden>
+    <div class="up-body" id="up-body" hidden>
+      <div class="up-preview"><canvas id="up-prev"></canvas></div>
+      <div class="up-opts">
+        <div class="field slim"><input id="up-name" type="text" maxlength="18" placeholder="Name"></div>
+        <p class="hint">Works on the wall and the floor: when you place it, click the wall to hang it or the floor to stand it.</p>
+        <span class="label">Detail</span>
+        <div class="seg" data-opt="detail"><button data-v="24">Chunky</button><button data-v="32" class="on">Normal</button><button data-v="40">Fine</button></div>
+        <span class="label">Colors</span>
+        <div class="seg" data-opt="colors"><button data-v="8">8</button><button data-v="16" class="on">16</button><button data-v="32">32</button></div>
+        <label class="check"><input type="checkbox" id="up-bg"> Remove plain background</label>
+      </div>
+    </div>
+    <button class="btn primary block" id="up-add" disabled>Add to decorations</button>
+  </div>
+</div>
+
+<!-- save / load game -->
+<div id="savemenu" class="picker" hidden>
+  <div class="px picker-card save-card">
+    <div class="picker-head">
+      <div class="save-title"><span class="pxi" data-icon="save"></span><b id="save-title">Save game</b></div>
+      <button class="pxb ico" id="save-close" title="Close"><span class="pxi" data-icon="x"></span></button>
+    </div>
+    <p id="save-sub">Your shop saves automatically.</p>
+    <div id="slots" class="slots"></div>
+    <div class="save-foot">
+      <button class="btn" id="to-menu"><i data-lucide="home"></i> Main menu</button>
+      <button class="btn" id="export-save"><i data-lucide="download"></i> Export file</button>
+      <label class="btn" for="import-file"><i data-lucide="upload"></i> Import file</label>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+</div>
+
+<!-- in-game confirm dialog (replaces the browser's confirm box) -->
+<div id="confirm" class="picker confirm" hidden>
+  <div class="px picker-card confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-msg">
+    <div class="picker-head"><b id="confirm-title">Are you sure?</b></div>
+    <p id="confirm-msg"></p>
+    <div class="confirm-btns">
+      <button class="btn" id="confirm-no">Cancel</button>
+      <button class="btn primary" id="confirm-yes">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<script src="src/art.js?v=21"></script>
+<script src="src/pixelate.js?v=11"></script>
+<script src="src/menu-scene.js?v=21"></script>
+<script src="src/main.js?v=21"></script>
+</body>
+</html>
